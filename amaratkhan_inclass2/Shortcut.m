@@ -45,7 +45,7 @@ subplot(122);
 imshow(newImg,newImg_ref);
 
 %% Sheer (Vertical)
-V = [1 0 0; -0.5 1 0; 0 0 1];
+V = [1 0 0; 1.5 1 0; 0 0 1];
 tform_v = affine2d(V);
 [newImg, newImg_ref] = imwarp(img,tform_v);
 
@@ -55,7 +55,7 @@ subplot(122);
 imshow(newImg,newImg_ref);
 
 %% Sheer (Horizontal)
-H = [1 -0.5 0; 0 1 0; 0 0 1];
+H = [1 0.5 0; 0 1 0; 0 0 1];
 tform_h = affine2d(H);
 [newImg,newImg_ref] = imwarp(img,tform_h);
 

@@ -13,12 +13,10 @@ img = insertText(img,[imgSize(1)/2-5*72/2 imgSize(2)/2-72],'ANUAR','FontSize',72
     'BoxColor','white');
 img_ref = imref2d(imgSize);
 
-imshow(img,img_ref);
-
 %% Scale image
 c_x = 0.5;
 c_y = 1.5;
-newImg = zeros(c_x*imgSize(1), c_y*imgSize(2),'uint8');
+scaled = zeros(c_x*imgSize(1), c_y*imgSize(2),'uint8');
 
 for i = 1:imgSize(1)
     for j = 1:imgSize(2)
@@ -26,92 +24,88 @@ for i = 1:imgSize(1)
         j_dash = uint32(j*c_y);
         st_i = uint32((i-1)*c_x+1);
         st_j = uint32((j-1)*c_y+1);
-        newImg(st_i:i_dash,st_j:j_dash) = img(i,j);
+        scaled(st_i:i_dash,st_j:j_dash) = img(i,j);
     end
 end
 
-newImg_ref = imref2d(size(newImg));
-subplot(121);
-imshow(img, img_ref);
-subplot(122);
-imshow(newImg, newImg_ref);
+scaled_ref = imref2d(size(scaled));
 
 %% Rotate image
-theta = pi/4;
-newImg = zeros(uint32(2*imgSize(1)*cos(theta)),uint32(2*imgSize(2)*sin(theta)),'uint8');
-mid_x = round(imgSize(1)*cos(theta));
-mid_y = round(imgSize(2)*sin(theta));
+theta = pi/6;
+rotated = zeros(round(imgSize(1)*abs(cos(theta))),round(imgSize(2)*abs(sin(theta))),'uint8');
+inds = zeros(imgSize(1),imgSize(2),2);
 
 for i = 1:imgSize(1)
     for j = 1:imgSize(2)
-        i_dash = (i-mid_y)*cos(theta)+(j-mid_x)*sin(theta);
-        j_dash = (i-mid_y)*cos(theta)-(j-mid_x)*sin(theta);
-        i_dash = round(i_dash)+mid_x;
-        j_dash = round(j_dash)+mid_y;
-%         fprintf('x: %d\ny: %d\n---------\n',i_dash,j_dash);
-        if(i_dash>=1 && j_dash>=1 && i_dash<=imgSize(1) && j_dash<=imgSize(2))
-            newImg(i_dash,j_dash) = img(i,j);
-        end
+        i_dash = round(i*cos(theta)+j*sin(theta));
+        j_dash = round(-i*sin(theta)+j*cos(theta));
+        inds(i,j,1) = i_dash;
+        inds(i,j,2) = j_dash;
     end
 end
 
-newImg_ref = imref2d(size(newImg));
-subplot(121);
-imshow(img,img_ref);
-subplot(122);
-imshow(newImg,newImg_ref);
+minimal = min(min(min(inds)));
+inds(:,:,2) = inds(:,:,2)-minimal+1;
+
+for i = 1:imgSize(1)
+    for j = 1:imgSize(2)
+        i_dash = inds(i,j,1);
+        j_dash = inds(i,j,2);
+        rotated(i_dash,j_dash) = img(i,j);
+    end
+end
+
+rotated = medfilt2(rotated);
+rotated_ref = imref2d(size(rotated));
 
 %% Translate image
 t_x = 100;
 t_y = 100;
-newImg = zeros(imgSize(1)+t_x,imgSize(2)+t_y,'uint8');
+translated = zeros(imgSize(1)+t_x,imgSize(2)+t_y,'uint8');
 
 for i = 1:imgSize(1)
     for j = 1:imgSize(2)
         i_dash = i+t_x;
         j_dash = j+t_y;
-        newImg(i_dash,j_dash) = img(i,j);
+        translated(i_dash,j_dash) = img(i,j);
     end
 end
 
-newImg_ref = imref2d(size(newImg));
-subplot(121);
-imshow(img, img_ref);
-subplot(122);
-imshow(newImg,newImg_ref);
+translated_ref = imref2d(size(translated));
 
 %% Sheer (Vertical)
 s_v = 0.5;
-newImg = zeros(imgSize(1)+s_v*imgSize(2),imgSize(2),'uint8');
+vertical = zeros(imgSize(1)+s_v*imgSize(2),imgSize(2),'uint8');
 
 for i = 1:imgSize(1)
     for j = 1:imgSize(2)
         i_dash = uint32(i+s_v*j);
         j_dash = j;
-        newImg(i_dash,j_dash) = img(i,j);
+        vertical(i_dash,j_dash) = img(i,j);
     end
 end
 
-newImg_ref = imref2d(size(newImg));
-subplot(121);
-imshow(img,img_ref);
-subplot(122);
-imshow(newImg,newImg_ref);
+vertical_ref = imref2d(size(vertical));
 
 %% Sheer (Horizontal)
 s_h = 0.5;
-newImg = zeros(imgSize(1),imgSize(2)+s_h*imgSize(1),'uint8');
+horizontal = zeros(imgSize(1),imgSize(2)+s_h*imgSize(1),'uint8');
 
 for i = 1:imgSize(1)
     for j = 1:imgSize(2)
         i_dash = i;
         j_dash = uint32(j+s_h*i);
-        newImg(i_dash,j_dash) = img(i,j);
+        horizontal(i_dash,j_dash) = img(i,j);
     end
 end
 
-newImg_ref = imref2d(size(newImg));
-subplot(121);
-imshow(img,img_ref);
-subplot(122);
-imshow(newImg,newImg_ref);
+horizontal_ref = imref2d(size(horizontal));
+
+%% Display images on one figure
+
+subplot(231); imshow(img,img_ref); title('Original');
+subplot(232); imshow(scaled,scaled_ref); title('Scaling');
+subplot(233); imshow(rotated,rotated_ref); title('Rotation');
+subplot(234); imshow(translated,translated_ref); title('Translation');
+subplot(235); imshow(vertical,vertical_ref); title('Sheer (Vertical)');
+subplot(236); imshow(horizontal,horizontal_ref); title('Sheer (Horizontal)');
