@@ -1,3 +1,4 @@
+tic; % start time
 % load images
 dir_name = 'logos';
 list_jpg = dir([dir_name '/*.jpg']);
@@ -6,17 +7,13 @@ list_png = dir([dir_name '/*.png']);
 list_img = horzcat(list_jpg', list_png');
 for i = 1:length(list_img)
     imageName = list_img(i).name;
-    disp(i);
-    disp(imageName);
     images{i} = imread([dir_name '/' imageName]);
 end
 
 % computing average RGB
 for i = 1:length(images)
     image = imresize(images{i}, [64 NaN]);
-    disp(i);
     images{i} = image;
-    disp(size(image));
 
     r = mean2(image(:,:,1));
     g = mean2(image(:,:,2));
@@ -26,20 +23,23 @@ for i = 1:length(images)
 end
 
 % choose target image
-img = imread('mandrill.png');
-numberOfTiles = 100;
+img = imread('Hannah Cenusa.jpg');
+% recSize = input('Please enter a rectangle size: ');
+recSize = 16;
 imgSize = size(img);
-numberOfPixels = imgSize(1)*imgSize(2);
-subImagePixels = numberOfPixels/numberOfTiles;
-recSize = sqrt(subImagePixels);
+ver_batches = floor(imgSize(1)/recSize);
+hor_batches = floor(imgSize(2)/recSize);
+total_batches = ver_batches*hor_batches;
+newSize = total_batches*recSize^2;
 start_col = 1;
 end_col = recSize;
-img_avg = ones(numberOfTiles,3);
+img_avg = ones(total_batches,3);
 index = 1;
-for i = 1:sqrt(numberOfTiles)
+for i = 1:hor_batches
     start_row = 1;
     end_row = recSize;
-    for j = 1:sqrt(numberOfTiles)
+    for j = 1:ver_batches
+%         fprintf('hor=%d ver=%d\ti=%d j=%d\n', hor_batches, ver_batches, i, j);
         subImage = img(start_row:end_row, start_col:end_col, :);
         r = mean2(subImage(:,:,1));
         g = mean2(subImage(:,:,2));
@@ -53,10 +53,11 @@ for i = 1:sqrt(numberOfTiles)
     end_col = end_col + recSize;
 end
 
+img_avg_size = size(img_avg);
+
 % generating color batches
 % img_avg = round(img_avg);
-% batches = zeros(numberOfTiles, recSize, recSize, 3, 'uint8');
-img_avg_size = size(img_avg);
+% batches = zeros(total_batches, recSize, recSize, 3, 'uint8');
 % for i = 1:img_avg_size(1)
 %     for j = 1:img_avg_size(2)
 %         batches(i,:,:,j) = img_avg(i,j);
@@ -65,24 +66,23 @@ img_avg_size = size(img_avg);
 
 % generating image batches
 img_avg = round(img_avg);
-batches = ones(numberOfTiles, recSize, recSize, 3, 'uint8');
+batches = ones(total_batches, recSize, recSize, 3, 'uint8');
 for i = 1:img_avg_size(1)
-    for k = 1:img_avg_size(2)
-        distances = 1:length(averages);
-        for j = 1:length(averages)
-            candidate_avg = [averages{j}];
-            distances(j) = euclidean_distance(img_avg(i,:),candidate_avg);
-        end
-        [min_d, index_d] = min(distances);
-        batch = cell2mat(images(index_d));
-%         change resolution to [recSize X recSize]
-        batch = imresize(batch, [48 48]);
-        disp(size(batch));
-        batches(i,:,:,:) = batch;
+    distances = 1:length(averages);
+    for j = 1:length(averages)
+        candidate_avg = [averages{j}];
+        distances(j) = euclidean_distance(img_avg(i,:),candidate_avg);
     end
+    [min_d, index_d] = min(distances);
+    batch = cell2mat(images(index_d));
+    batch = imresize(batch, [recSize recSize]);
+    batches(i,:,:,:) = batch;
 end
 
+newImg = assemble_mosaic(batches, hor_batches, ver_batches);
 
-newImg = assemble_mosaic(batches, imgSize(1)/recSize, imgSize(2)/recSize);
+% subplot(121); imshow(img);
+% subplot(122); imshow(newImg);
+imshow(newImg);
 
-imshow([img,newImg]);
+toc % end time
