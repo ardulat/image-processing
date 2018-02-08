@@ -68,7 +68,7 @@ for i = 1:imgSize(1)
         end
     end
 end
-disp(newImg(1:10,1:10));
+
 newImg = uint8(newImg);
 subplot(121); imshow(img);
 subplot(122); imshow(newImg);
