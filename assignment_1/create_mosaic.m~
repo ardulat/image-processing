@@ -1,13 +1,6 @@
 function [ newImg ] = create_mosaic( filename, path, recSize, shape )
-%CREATE_MOSAIC The method converts an image to a mosaic of images from 
-% the dataset with shape of given size
-%   Input:
-%       filename = string name of image to be converted
-%       path = string path to the dataset of images to be used for mosaic
-%       recSize = integer size of mosaic batches
-%       shape = shape of batches ('rectangular' or 'circular')
-%   Output:
-%       newImg = final image converted to the mosaic
+%CREATE_MOSAIC The method converts an image to a mosaic o
+%   Detailed explanation goes here
 
     % load images
     dir_name = path; % 'database'
