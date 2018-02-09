@@ -1,13 +1,10 @@
-% ROBT 310 - Project assignment 1
-%
-% Author: Anuar Maratkhan
-% Date: 29 Jan 2017
-
-close all ; clc; clear;     % Close all figure windows, Clear the screen and the workspace memory
+function [ newImg ] = create_mosaic( filename, path, recSize, shape )
+%CREATE_MOSAIC Summary of this function goes here
+%   Detailed explanation goes here
 
 tic; % start time
 % load images
-dir_name = 'database';
+dir_name = path;
 list_jpg = dir([dir_name '/*.jpg']);
 list_png = dir([dir_name '/*.png']);
 
@@ -19,7 +16,7 @@ end
 
 % computing average RGB
 for i = 1:length(images)
-    image = imresize(images{i}, [100 NaN]);
+    image = imresize(images{i}, [64 NaN]);
     images{i} = image;
 
     r = mean2(image(:,:,1));
@@ -30,9 +27,8 @@ for i = 1:length(images)
 end
 
 % choose target image
-img = imread('mandrill.png');
-recSize = input('Please enter a rectangle size: ');
-% recSize = 16;
+img = imread(filename);
+% recSize = input('Please enter a rectangle size: ');
 fprintf('Okay, processing...\n');
 % recSize = 16;
 imgSize = size(img);
@@ -73,55 +69,20 @@ img_avg_size = size(img_avg);
 %     end
 % end
 
-% generating rectangular image batches
+% generating image batches
 img_avg = round(img_avg);
 batches = ones(total_batches, recSize, recSize, 3, 'uint8');
-% for i = 1:img_avg_size(1)
-%     distances = 1:length(averages);
-%     for j = 1:length(averages)
-%         candidate_avg = [averages{j}];
-%         distances(j) = euclidean_distance(img_avg(i,:),candidate_avg);
-%     end
-%     [min_d, index_d] = min(distances);
-%     batch = cell2mat(images(index_d));
-%     batch = imresize(batch, [recSize recSize]);
-%     batches(i,:,:,:) = batch;
-% end
-
 for i = 1:img_avg_size(1)
     distances = 1:length(averages);
     for j = 1:length(averages)
         candidate_avg = [averages{j}];
         distances(j) = euclidean_distance(img_avg(i,:),candidate_avg);
     end
-    [min_d,index_d] = min(distances);
+    [min_d, index_d] = min(distances);
     batch = cell2mat(images(index_d));
-    batch_size = size(batch);
-    % convert rectangular batch to circular
-    img_mask1 = imread('circle.png');
-    img_mask1 = imresize(img_mask1,[batch_size(1) batch_size(2)]);
-    img_mask1_logical = logical(img_mask1);
-    img_mask1_int = uint8(img_mask1_logical);
-    batch_inner = batch.*img_mask1_int;
-    
-    img_mask2 = imread('circle complement.png');
-    img_mask2 = imresize(img_mask2,[batch_size(1) batch_size(2)]);
-    img_mask2_logical = logical(img_mask2);
-    img_mask2_int = uint8(img_mask2_logical);
-    target_color = ones(batch_size(1),batch_size(2),3,'uint8');
-    % generate actual color
-    target_color(:,:,1) = img_avg(i,1);
-    target_color(:,:,2) = img_avg(i,2);
-    target_color(:,:,3) = img_avg(i,3);
-    
-    batch_outer = target_color.*img_mask2_int;
-%     imshow(batch_outer);
-    batch = batch_inner+batch_outer;
-    
-    batch = imresize(batch,[recSize recSize]);
+    batch = imresize(batch, [recSize recSize]);
     batches(i,:,:,:) = batch;
 end
-
 
 newImg = assemble_mosaic(batches, hor_batches, ver_batches);
 fprintf('Done!\n');
@@ -135,3 +96,6 @@ end
 imshow(newImg);
 
 toc % end time
+
+end
+
