@@ -1,7 +1,7 @@
 % ROBT 310 - Assignment 2
 %
 % Author: Anuar Maratkhan
-% Date: 13 Feb 2017
+% Date: 15 Feb 2018
 
 %%
 close all ; clc; clear;
@@ -33,6 +33,10 @@ subplot(133); imshow(newImg); title('Dithered image');
 I = imread('lena512color.tiff');
 [rows cols] = size(I);
 
+I(:,:,1) = histeq(I(:,:,1));
+I(:,:,2) = histeq(I(:,:,2));
+I(:,:,3) = histeq(I(:,:,3));
+
 r = I(:,:,1);
 g = I(:,:,2);
 b = I(:,:,3);
@@ -50,9 +54,9 @@ for i = 1:size(none,1)
     end
 end
 
-r = floyd_steinberg_dithering(r,8);
-g = floyd_steinberg_dithering(g,8);
-b = floyd_steinberg_dithering(b,8);
+r = floyd_steinberg_dithering(r,3);
+g = floyd_steinberg_dithering(g,3);
+b = floyd_steinberg_dithering(b,3);
 
 newImg(:,:,1) = r;
 newImg(:,:,2) = g;
