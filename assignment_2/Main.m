@@ -8,19 +8,16 @@ close all ; clc; clear;
 
 %% First task
 I = imread('lenna.jpg');
+
+I = histeq(I); % image enhancement
+
 [rows cols] = size(I);
 
 newImg = I;
 none = newImg;
 
-for i = 1:size(none,1)
-    for j = 1:size(none,2)
-        oldpixel = none(i,j);       
-        newpixel = find_closest_palette_color(oldpixel,1);
-        none(i,j) = newpixel;
-    end
-end
-        
+none = I > 256/2;
+
 newImg = floyd_steinberg_dithering(newImg,1);
 
 figure(1);
@@ -30,26 +27,26 @@ subplot(133); imshow(newImg); title('Dithered image');
 
 %% Second task
 
-I = imread('lena512color.tiff');
-[rows cols] = size(I);
+I_1 = imread('lena512color.tiff');
+[rows cols] = size(I_1);
 
-I(:,:,1) = histeq(I(:,:,1));
-I(:,:,2) = histeq(I(:,:,2));
-I(:,:,3) = histeq(I(:,:,3));
+I_1(:,:,1) = histeq(I_1(:,:,1));
+I_1(:,:,2) = histeq(I_1(:,:,2));
+I_1(:,:,3) = histeq(I_1(:,:,3));
 
-r = I(:,:,1);
-g = I(:,:,2);
-b = I(:,:,3);
+r = I_1(:,:,1);
+g = I_1(:,:,2);
+b = I_1(:,:,3);
 
-newImg = I;
-none = newImg;
+newImg = I_1;
+none_1 = newImg;
 
-for i = 1:size(none,1)
-    for j = 1:size(none,2)
-        for k = 1:size(none,3)
-            oldpixel = none(i,j,k);
+for i = 1:size(none_1,1)
+    for j = 1:size(none_1,2)
+        for k = 1:size(none_1,3)
+            oldpixel = none_1(i,j,k);
             newpixel = find_closest_palette_color(oldpixel,8);
-            none(i,j,k) = newpixel;
+            none_1(i,j,k) = newpixel;
         end
     end
 end
@@ -63,7 +60,30 @@ newImg(:,:,2) = g;
 newImg(:,:,3) = b;
 
 figure(2);
+subplot(131); imshow(I_1); title('Original image');
+subplot(132); imshow(none_1); title('No dithering');
+subplot(133); imshow(newImg); title('Dithered image');
+
+
+%% Third task
+newImg = ordered_dithering(I);
+
+figure(3);
 subplot(131); imshow(I); title('Original image');
 subplot(132); imshow(none); title('No dithering');
 subplot(133); imshow(newImg); title('Dithered image');
 
+% newImg = I_1;
+% 
+% r = ordered_dithering(r);
+% g = ordered_dithering(g);
+% b = ordered_dithering(b);
+% 
+% newImg(:,:,1) = r;
+% newImg(:,:,2) = g;
+% newImg(:,:,3) = b;
+% 
+% figure(4);
+% subplot(131); imshow(I_1); title('Original image');
+% subplot(132); imshow(none_1); title('No dithering');
+% subplot(133); imshow(newImg); title('Dithered image');
