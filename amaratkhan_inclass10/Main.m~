@@ -18,35 +18,43 @@ r2 = img2(:,:,1);
 g2 = img2(:,:,2);
 b2 = img2(:,:,3);
 
-% histogram matching: 1 -> 2
-r1_matched = histogram_matching(r2,r1);
-g1_matched = histogram_matching(g2,g1);
-b1_matched = histogram_matching(b2,b1);
+% first image
 
-newImg3 = img1;
-newImg3(:,:,1) = r1_matched;
-newImg3(:,:,2) = g1_matched;
-newImg3(:,:,3) = b1_matched;
+figure(1);
+% subplot(141); imshow(newImg1);
+% subplot(142); imhist(r1);
+% subplot(143); imhist(g1);
+% subplot(144); imhist(b1);
+imshow(newImg1);
 
-% histogram matching: 2 -> 1
+% second image
 
-r2_matched = histogram_matching(r1,r2);
-g2_matched = histogram_matching(g1,g2);
-b2_matched = histogram_matching(b1,b2);
+figure(2);
+% subplot(141); imshow(newImg2);
+% subplot(142); imhist(r2);
+% subplot(143); imhist(g2);
+% subplot(144); imhist(b2);
+imshow(newImg2);
 
-newImg4 = img2;
-newImg4(:,:,1) = r2_matched;
-newImg4(:,:,2) = g2_matched;
-newImg4(:,:,3) = b2_matched;
+% histogram matching
+r2 = histogram_matching(r1,r2);
+g2 = histogram_matching(g1,g2);
+b2 = histogram_matching(b1,b2);
 
-% visualize
-subplot(221); imshow(newImg1);
-subplot(222); imshow(newImg2);
-subplot(223); imshow(newImg3);
-subplot(224); imshow(newImg4);
+newImg3 = img2;
+newImg3(:,:,1) = r2;
+newImg3(:,:,2) = g2;
+newImg3(:,:,3) = b2;
+
+figure(3);
+% subplot(141); imshow(newImg3);
+% subplot(142); imhist(r2);
+% subplot(143); imhist(g2);
+% subplot(144); imhist(b2);
+imshow(newImg3);
 
 function [newImg, S] = histogram_equalization(I)
-    [rows, cols] = size(I);
+    [rows cols] = size(I);
     MN = rows*cols;
     L = 256;
 
@@ -85,8 +93,8 @@ function [newImg, S] = histogram_equalization(I)
 end
 
 function newImg = histogram_matching(img1, img2)
-    [~, S1] = histogram_equalization(img1);
-    [~, S2] = histogram_equalization(img2);
+    [img1_equalized, S1] = histogram_equalization(img1);
+    [img2_equalized, S2] = histogram_equalization(img2);
     
     L = 256;
     newImg = img2;
@@ -95,13 +103,18 @@ function newImg = histogram_matching(img1, img2)
         for j = 1:size(newImg,2)
             distances = zeros(L,1);
             for ind = 1:L
-                intensity1 = double(S2(newImg(i,j)+1));
+                disp(newImg(i,j));
+                try
+                    intensity1 = double(S2(newImg(i,j)));
+                catch Message
+                    disp(newImg(i,j))
+                end
                 intensity2 = double(S1(ind));
-                euc_dist = sqrt(abs(intensity1^2-intensity2^2));
-%                 euc_dist = abs(intensity1-intensity2);
+%                 euc_dist = sqrt(abs(intensity1^2-intensity2^2));
+                euc_dist = abs(intensity1-intensity2);
                 distances(ind) = euc_dist;
             end
-            [~, index] = min(distances);
+            [minimum, index] = min(distances);
             newImg(i,j) = index-1;
         end
     end
