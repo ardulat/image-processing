@@ -18,7 +18,7 @@ none = newImg;
 
 none = I > 256/2;
 
-newImg = floyd_steinberg_dithering(newImg,1);
+newImg = floyd_steinberg_dithering(newImg,2);
 
 figure(1);
 subplot(131); imshow(I); title('Original image');
@@ -51,9 +51,9 @@ for i = 1:size(none_1,1)
     end
 end
 
-r = floyd_steinberg_dithering(r,3);
-g = floyd_steinberg_dithering(g,3);
-b = floyd_steinberg_dithering(b,3);
+r = floyd_steinberg_dithering(r,8);
+g = floyd_steinberg_dithering(g,8);
+b = floyd_steinberg_dithering(b,8);
 
 newImg(:,:,1) = r;
 newImg(:,:,2) = g;
