@@ -1,4 +1,4 @@
-% ROBT 310 - Assignment 2
+% ROBT 310 - Lecture 10
 %
 % Author: Anuar Maratkhan
 % Date: 15 Feb 2018

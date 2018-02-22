@@ -1,8 +1,12 @@
-function [ newImg ] = floyd_steinberg_dithering( newImg, colors )
-%FLOYD_STERING_DITHERING Summary of this function goes here
-%   Detailed explanation goes here
+function [ ditheredImage ] = floyd_steinberg_dithering( newImg, colors )
+%FLOYD_STERING_DITHERING Dithers image with Floyd-Steinberg diffusion
+%   Input:
+%       newImg - image to be dithered
+%       colors - number of colors in colormap
+%   Output:
+%       ditheredImage - ditheredImage
 
-    [rows cols] = size(newImg);
+    [rows, cols] = size(newImg);
     
     for i = 1:rows
         for j = 1:cols
@@ -26,7 +30,7 @@ function [ newImg ] = floyd_steinberg_dithering( newImg, colors )
         end
     end
 
-
+    ditheredImage = newImg;
 
 end
 
