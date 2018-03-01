@@ -14,7 +14,7 @@ figure(1); imshow(I); title('Bone Scan Image');
 h_laplacian = [-1 -1 -1; -1 8 -1; -1 -1 -1]; 
 h_sob_ver = [-1 -2 -1; 0 0 0; 1 2 1]; 
 h_sob_hor = [-1 0 1; -2 0 2; -1 0 1]; 
-h_smooth = ones(5,5)/25; 
+h_smooth = ones(5,5)/25;
 
 %% Step 2 - Laplacian Filtering 
 I_lap = conv2(I, h_laplacian, 'same');  % Laplacian Filtering 
