@@ -21,7 +21,9 @@ title('Spatial Domain Sobel Filtered Image',...
 %% Frequency Domain Implementation of the Sobel Filter
 
 F = fft2(double(I));
+figure(10); imshow(log(abs(fftshift(F))));
 H = fft2(double(h), 800, 800);
+figure(11); imshow(log(abs(fftshift(H))));
 F_sobel = H.*F;
 I_sobel2 = ifft2(F_sobel);
 
