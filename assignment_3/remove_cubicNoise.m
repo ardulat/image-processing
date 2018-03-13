@@ -7,6 +7,8 @@ function [ newImg ] = remove_cubicNoise( img )
     
     fabs = abs(log(f_shifted));
     
+    figure(1); imshow(fabs,[]); title('Frequency domain'); axis on;
+    
     thresh = 10.5;
     brightSpikes = fabs > thresh;
     
@@ -25,9 +27,6 @@ function [ newImg ] = remove_cubicNoise( img )
     filter(257,261) = 0;
     
     newImg = f_shifted .* filter;
-    
-%     imshow(log(abs(newImg))); title('removed spikes'); axis on;
-    
     
     newImg = uint8(ifft2(ifftshift(newImg)));
 
