@@ -12,10 +12,10 @@ function [ filteredImage, sharedSpikes ] = frequency_noise( median, sharedSpikes
     representation = log(abs(f_shifted));
 
     % thresholding (DC + spikes)
-    thresh = 9.5;
+    thresh = 10.5;
     brightSpikes = representation > thresh;
     
-    brightSpikes(256:259,256:259) = 0;
+%     brightSpikes(256:259,256:259) = 0;
     
 %     imshow(brightSpikes);
     

@@ -26,18 +26,19 @@ for i = 1:frames
    writeVideo(output,grayImage);
 end
 
-sharedSpikes(256:258,256:258) = 0;
-% exclude vertical lines
-sharedSpikes(:,257) = 0;
+% sharedSpikes(256:258,256:258) = 0;
+% % exclude vertical lines
+% sharedSpikes(:,257) = 0;
 
-imwrite(sharedSpikes, 'shared.png')
-figure(22); imshow(sharedSpikes); title('Shared Spikes'); axis on;
+% imwrite(sharedSpikes, 'shared.png')
 
 close(output);
 
 implay('result.avi');
 
 %% remove shared spikes
+
+close all; clear; clc;
 
 vid = VideoReader('result.avi');
 frames = vid.NumberOfFrames;
@@ -59,27 +60,35 @@ close(output);
 
 implay('result_1.avi');
 
-%% development process
-close all; clear; clc;
+%% removing horizontal line
+vid = VideoReader('result_1.avi');
 
-vid = VideoReader('robt310_proj3_expert_amaratkhan.avi');
-img = readFrame(vid);
-numberOfFrames = 512;
+frames = vid.NumberOfFrames;
 
-for i = 1:numberOfFrames/2
-    img = readFrame(vid);
+cube = ones(512,512,frames, 'uint8');
+
+for i = 1:frames
+    img = read(vid,i);
+    grayImage = rgb2gray(img);
+    
+    cube(:,:,i) = grayImage;
 end
 
-% median filter
-gray = rgb2gray(img);
-median = medfilt2(gray);
+time_domain = permute(cube,[1 3 2]);
 
-filteredImage = remove_sharedSpikes(median);
+for i = 1:frames
+    time_domain(:,:,i) = remove_cubicNoise(time_domain(:,:,i));
+end
 
-figure(22); imshow(filteredImage,[]); title('Filtered Image');
+cube = permute(time_domain, [1 3 2]);
 
+output = VideoWriter('result_2.avi');
+open(output);
 
+for i = 1:frames
+    writeVideo(output,cube(:,:,i));
+end
 
+close(output);
 
-
-
+implay('result_2.avi');
