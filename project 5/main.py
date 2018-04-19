@@ -46,9 +46,10 @@ def compress(uncompressed):
 def encode(compressed_list,filename):
     """Write list of strings to file in bytes."""
 
-    encoded = struct.pack(">{}L".format(len(compressed_list)), *compressed_list)
+    encoded = struct.pack(">{}I".format(len(compressed_list)), *compressed_list)
 
     file = open(filename, 'wb')
+    # print("Length: " + str(len(compressed_list)))
     file.write(len(compressed_list).to_bytes(3,'big'))
     file.write(encoded)
     file.close()
@@ -62,12 +63,19 @@ def decode(filename):
     sz = int.from_bytes(encoded[0:3],'big')
     # print(sz)
 
-    decoded = struct.unpack(">{}L".format(sz), encoded[3:])
+    decoded = struct.unpack(">{}I".format(sz), encoded[3:])
     return list(decoded)
 
 
 def decompress(compressed):
+
+
     """Decompress a list"""
+
+    N = compressed.pop()
+    M = compressed.pop()
+    print("Shape: " + str(M) + " "+str(N))
+
 
     dict_size = 256
     dictionary = {i: [i] for i in range(dict_size)}
@@ -98,23 +106,30 @@ def decompress(compressed):
         # print()
     # print()
 
-    flat_decompressed = []
-    for inner_list in decompressed:
-        for each in inner_list:
-            flat_decompressed.append(each)
+    flat_decompressed = flat(decompressed)
 
     print("Last ten elements: " + str(flat_decompressed[-20:]))
 
-    M = flat_decompressed.pop()
-    N = flat_decompressed.pop()
-    print(len(flat_decompressed))
-    # print(M,N)
+    # checking
+    print("Length of flat_decompressed: " + str(len(flat_decompressed)))
+    print("To be reshaped to: " + str(M) + "x" + str(N))
 
-    decompressed = np.reshape(flat_decompressed, (M,N))
+    decompressed = np.reshape(np.array(flat_decompressed, dtype=np.uint8), (M,N))
     # print(type(decompressed))
 
     return decompressed
 
+def flat(alist):
+    new_list = []
+    for item in alist:
+        if isinstance(item, (list, tuple)):
+            new_list.extend(flat(item))
+        else:
+            new_list.append(item)
+    return new_list
+
+# MAIN STARTS
+# ---------------------------------------
 
 arr = np.array([[39, 39, 126, 126],
                 [39, 39, 126, 126],
@@ -145,11 +160,18 @@ print("Compressed image size: %.2f MB" % (os.path.getsize("1.pku")/1024/1024))
 decoded = decode('1.pku')
 decompressed_img = decompress(decoded)
 
-print(type(decompressed_img))
-print(len(decompressed_img))
+print()
+print("Start decompressing the image...")
+print()
 
-# cv2.imshow("Decompressed image",decompressed_img)
-# cv2.waitKey()
+print(type(decompressed_img[0,0]))
+print(len(decompressed_img))
+print(decompressed_img.dtype)
+decompressed_img.astype(np.uint8)
+print(decompressed_img.dtype)
+
+cv2.imshow("Decompressed image",decompressed_img)
+cv2.waitKey()
 
 
 
